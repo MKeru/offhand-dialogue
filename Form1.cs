@@ -1,8 +1,6 @@
 using System.Text;
 namespace offhand_dialogue;
 using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
-
 
 public partial class Form1 : Form
 {
