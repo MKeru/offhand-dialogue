@@ -1,5 +1,5 @@
 using System.Text;
-namespace angry_snowflakes;
+namespace offhand_dialogue;
 using System.Text.RegularExpressions;
 using Microsoft.VisualBasic;
 

@@ -1,4 +1,4 @@
-﻿namespace angry_snowflakes;
+﻿namespace offhand_dialogue;
 
 partial class Form1
 {
