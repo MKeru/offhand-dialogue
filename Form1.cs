@@ -7,6 +7,9 @@ public partial class Form1 : Form
     public Button button1, button2;
     public string? rawStory, title, category;
     public Panel panel = new Panel();
+    // stringbuilder for the final story
+    public StringBuilder sb_final = new StringBuilder();
+    Form form2 = new Form();
     public Form1()
     {
         this.AutoSize = false;
@@ -101,17 +104,6 @@ public partial class Form1 : Form
                         throw new Exception("There must be at least one ad lib in the file. Please submit a valid file.");
                     }
 
-                    // message box listing wordTypes stack
-                    /*
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < adLibs.Length; i++) 
-                    {
-                        sb.Append(adLibs[i]);
-                        sb.Append("\r\n");
-                    }
-                    */
-
-                    // MessageBox.Show(sb.ToString());
                     string prettyLabel;
                     for (int i = 0; i < adLibs.Length; i++)
                     {
@@ -160,11 +152,11 @@ public partial class Form1 : Form
         var adLibFieldEntry = (adLibField)panel.Controls[0];
 
         // create stringbuilder
-        StringBuilder sb = new StringBuilder();
-        sb.Append(category);
-        sb.Append("\r\n");
-        sb.Append(title);
-        sb.Append("\r\n");
+        sb_final = new StringBuilder();
+        sb_final.Append(category);
+        sb_final.Append("\r\n");
+        sb_final.Append(title);
+        sb_final.Append("\r\n");
 
         // regex
         Regex regex = new Regex("\\[.+?\\]");
@@ -209,10 +201,52 @@ public partial class Form1 : Form
             finalStory = finalStory.Replace("  ", " ");
 
             // add rawStory to stringbuilder
-            sb.Append(finalStory);
+            sb_final.Append(finalStory);
 
             // fit finalStory to message box
-            MessageBox.Show(sb.ToString(), "Your Story", MessageBoxButtons.OK);
+            // MessageBox.Show(sb.ToString(), "Your Story", MessageBoxButtons.OK);
+
+            // create new form to display finalStory
+            
+            form2.Text = "Your Story";
+            form2.StartPosition = FormStartPosition.CenterScreen;
+            
+            // display finalStory in form2
+            Label label = new Label();
+            label.Text = sb_final.ToString();
+
+            // set recommended label size
+            label.AutoSize = true;
+            label.MaximumSize = new Size(500, 0);
+            label.Location = new Point(10, 10);
+
+            // add label to form2
+            form2.Controls.Add(label);
+
+            // add ok button anchored to bottom right of form2
+            Button button4 = new Button();
+            button4.Text = "OK";
+            button4.Location = new Point(form2.Width - button4.Width - 30, form2.Height - button4.Height - 50);
+            button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            button4.Click += new EventHandler(button4_Click);
+            form2.Controls.Add(button4);
+
+            // add save button to left of ok button in form2
+            Button button3 = new Button();
+            button3.Text = "Save";
+            button3.Location = new Point(button4.Location.X - button3.Width - 10, button4.Location.Y);
+            button3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            button3.Click += new EventHandler(button3_Click);
+            form2.Controls.Add(button3);
+
+            // allow form2 to resize
+            form2.AutoSize = true;
+
+            // allow user to resize form2
+            form2.FormBorderStyle = FormBorderStyle.Sizable;
+
+            // show form2
+            form2.ShowDialog();
 
             // clear fields in panel
             for (int i = 0; i < panel.Controls.Count; i++)
@@ -226,6 +260,43 @@ public partial class Form1 : Form
         catch (Exception)
         {
         }
+    }
+
+    // button3 click handler to save finalStory to text file
+    private void button3_Click(object? sender, EventArgs e)
+    {
+        // create save file dialog
+        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+        // set default file name
+        saveFileDialog1.FileName = title + ".txt";
+        // set default file extension
+        saveFileDialog1.DefaultExt = "txt";
+        // set default file type
+        saveFileDialog1.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+        // let user choose save location
+        saveFileDialog1.OverwritePrompt = true;
+
+        if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+        {
+            // create file
+            using (StreamWriter writer = new StreamWriter(saveFileDialog1.FileName))
+            {
+                // write finalStory to file
+                writer.Write(sb_final.ToString());
+            }
+        }
+
+        // close save file dialog
+        saveFileDialog1.Dispose();
+
+        // form2.Close();
+    }
+
+    // form2 button4 click handler
+    private void button4_Click(object? sender, EventArgs e)
+    {
+        // close form2
+        form2.Close();
     }
 }
 
