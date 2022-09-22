@@ -9,7 +9,6 @@ public partial class Form1 : Form
     public Panel panel = new Panel();
     // stringbuilder for the final story
     public StringBuilder sb_final = new StringBuilder();
-    Form form2 = new Form();
     public Form1()
     {
         this.AutoSize = false;
@@ -42,10 +41,6 @@ public partial class Form1 : Form
 
     private void button1_Click(object? sender, EventArgs e)
     {
-        // reset panel
-        panel.Controls.Clear();
-        panel.Dispose();
-
         // open file browser window
         OpenFileDialog openFileDialog = new OpenFileDialog();
         openFileDialog.Filter = "Text Files (*.txt)|*.txt";
@@ -104,6 +99,11 @@ public partial class Form1 : Form
                         throw new Exception("There must be at least one ad lib in the file. Please submit a valid file.");
                     }
 
+                    // from here on the file is valid
+                    // reset panel
+                    panel.Controls.Clear();
+                    panel.Dispose();
+
                     string prettyLabel;
                     for (int i = 0; i < adLibs.Length; i++)
                     {
@@ -124,10 +124,23 @@ public partial class Form1 : Form
                         panel.Controls.Add(adLibFieldEntry);
                     }
 
-                    // set panel size to fit all text boxes
-                    panel.AutoSize = true;
-                    // allow form to scroll
-                    this.AutoScroll = true;
+                    // set panel max height to 500px
+                    panel.MaximumSize = new Size(0, 500);
+
+                    // set panel height to fit all text boxes
+                    panel.Height = panel.PreferredSize.Height;
+
+                    // set panel width and padding
+                    panel.Width = 180;
+                    panel.Padding = new Padding(0, 0, 20, 0);
+
+                    if (panel.Controls.Cast<Control>().Max(c => c.Width) + 10 <= panel.Width)
+                    {
+                        panel.HorizontalScroll.Maximum = 0;
+                    }
+
+                    // allow panel to scroll
+                    panel.AutoScroll = true;
                     // set panel location to right of button1
                     panel.Location = new Point(button1.Location.X + button1.Width + 20, button1.Location.Y);
                     // add visual boundary to panel
@@ -203,57 +216,35 @@ public partial class Form1 : Form
             // add rawStory to stringbuilder
             sb_final.Append(finalStory);
 
-            // fit finalStory to message box
-            // MessageBox.Show(sb.ToString(), "Your Story", MessageBoxButtons.OK);
+            // create text box to right of panel with final story
+            TextBox textBox = new TextBox();
+            textBox.Multiline = true;
+            textBox.ScrollBars = ScrollBars.Vertical;
+            textBox.Width = 500;
+            textBox.Height = 500;
+            textBox.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
+            textBox.Text = sb_final.ToString();
 
-            // create new form to display finalStory
-            
-            form2.Text = "Your Story";
-            form2.StartPosition = FormStartPosition.CenterScreen;
-            
-            // display finalStory in form2
-            Label label = new Label();
-            label.Text = sb_final.ToString();
+            // textbox is readonly and unselectable
+            textBox.ReadOnly = true;
+            textBox.TabStop = false;
 
-            // set recommended label size
-            label.AutoSize = true;
-            label.MaximumSize = new Size(500, 0);
-            label.Location = new Point(10, 10);
+            // style textbox
+            textBox.Font = new Font("Arial", 12);
+            textBox.BorderStyle = BorderStyle.FixedSingle;
 
-            // add label to form2
-            form2.Controls.Add(label);
+            // textbox background color to same as form
+            textBox.BackColor = this.BackColor;
 
-            // add ok button anchored to bottom right of form2
-            Button button4 = new Button();
-            button4.Text = "OK";
-            button4.Location = new Point(form2.Width - button4.Width - 30, form2.Height - button4.Height - 50);
-            button4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            button4.Click += new EventHandler(button4_Click);
-            form2.Controls.Add(button4);
-
-            // add save button to left of ok button in form2
+            // add save button to right of text box
             Button button3 = new Button();
             button3.Text = "Save";
-            button3.Location = new Point(button4.Location.X - button3.Width - 10, button4.Location.Y);
-            button3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            button3.Location = new Point(textBox.Location.X + textBox.Width + 20, textBox.Location.Y);
             button3.Click += new EventHandler(button3_Click);
-            form2.Controls.Add(button3);
 
-            // allow form2 to resize
-            form2.AutoSize = true;
-
-            // allow user to resize form2
-            form2.FormBorderStyle = FormBorderStyle.Sizable;
-
-            // show form2
-            form2.ShowDialog();
-
-            // clear fields in panel
-            for (int i = 0; i < panel.Controls.Count; i++)
-            {
-                adLibFieldEntry = (adLibField)panel.Controls[i];
-                adLibFieldEntry.textBox.Text = "";
-            }
+            // add text box and save button to form
+            this.Controls.Add(textBox);
+            this.Controls.Add(button3);
 
             
         }
@@ -291,13 +282,6 @@ public partial class Form1 : Form
 
         // form2.Close();
     }
-
-    // form2 button4 click handler
-    private void button4_Click(object? sender, EventArgs e)
-    {
-        // close form2
-        form2.Close();
-    }
 }
 
 class adLibField : TableLayoutPanel
@@ -315,6 +299,8 @@ class adLibField : TableLayoutPanel
         Controls.Add(adLibLabel);
         // create new text box
         textBox = new TextBox();
+        // set text box width to 100px
+        textBox.Width = 140;
         Controls.Add(textBox);
     }
 }

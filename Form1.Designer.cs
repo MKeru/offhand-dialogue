@@ -1,5 +1,5 @@
 ﻿namespace offhand_dialogue;
-
+using System.Drawing.Drawing2D;
 partial class Form1
 {
     /// <summary>
@@ -29,9 +29,21 @@ partial class Form1
     private void InitializeComponent()
     {
         this.components = new System.ComponentModel.Container();
+        this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(800, 450);
-        this.Text = "Form1";
+        this.ClientSize = new System.Drawing.Size(940, 540);
+
+        // make gradient background example
+        /*
+        LinearGradientBrush brush = new LinearGradientBrush(this.ClientRectangle, Color.FromArgb(0, 0, 0), Color.FromArgb(0, 0, 0), 90F, false);
+        ColorBlend cb = new ColorBlend();
+        cb.Positions = new[] { 0, 0.3f, 1 };
+        cb.Colors = new[] { Color.FromArgb(19, 10, 30), Color.Black, Color.Black };
+        brush.InterpolationColors = cb;
+        this.Paint += (s, e) => e.Graphics.FillRectangle(brush, this.ClientRectangle);
+        */
+
+        this.Text = "Monkey Business";
     }
 
     #endregion
