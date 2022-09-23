@@ -20,18 +20,15 @@ partial class Form1
         base.Dispose(disposing);
     }
 
-    #region Windows Form Designer generated code
-
-    /// <summary>
-    ///  Required method for Designer support - do not modify
-    ///  the contents of this method with the code editor.
-    /// </summary>
     private void InitializeComponent()
     {
         this.components = new System.ComponentModel.Container();
         this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.ClientSize = new System.Drawing.Size(940, 540);
+        // start fullscreen
+        this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+        // set padding to 20px on all sides
+        this.Padding = new System.Windows.Forms.Padding(20);
 
         // make gradient background example
         /*
@@ -45,6 +42,4 @@ partial class Form1
 
         this.Text = "Monkey Business";
     }
-
-    #endregion
 }

@@ -2,6 +2,7 @@ using System.Text;
 namespace offhand_dialogue;
 using System.Text.RegularExpressions;
 
+
 public partial class Form1 : Form
 {
     public Button button1, button2;
@@ -13,27 +14,28 @@ public partial class Form1 : Form
     {
         this.AutoSize = false;
 
+        // allow scrolling
+        this.AutoScroll = true;
+
         button1 = new Button();
-        // button1.Size = new Size(100, 40);
-        button1.Location = new Point(20, 20);
         button1.Text = "Select New\nText File";
         // set button width to fit text plus 10 pixels on each side
         button1.Width = TextRenderer.MeasureText(button1.Text, button1.Font).Width + 20;
         // set button height to fit text plus 10 pixels on each side
         button1.Height = TextRenderer.MeasureText(button1.Text, button1.Font).Height + 20;
+        button1.Location = new Point(20, 20);
 
         this.Controls.Add(button1);
         button1.Click += new EventHandler(this.button1_Click);
 
         // button2
         button2 = new Button();
-        button2.Location = new Point(20, 80);
         button2.Text = "Submit Ad\nLibs";
         // set button width to same as button1
         button2.Width = button1.Width;
         // set button height to fit text plus 10 pixels on each side
         button2.Height = TextRenderer.MeasureText(button2.Text, button2.Font).Height + 20;
-        // make text fit button size without changin button size
+        button2.Location = new Point(20, 20 + button1.Height + 20);
         button2.Click += new EventHandler(this.button2_Click);
 
         InitializeComponent();
@@ -104,6 +106,7 @@ public partial class Form1 : Form
                     panel.Controls.Clear();
                     panel.Dispose();
 
+                    // makes ad lib labels capitalized
                     string prettyLabel;
                     for (int i = 0; i < adLibs.Length; i++)
                     {
@@ -124,25 +127,25 @@ public partial class Form1 : Form
                         panel.Controls.Add(adLibFieldEntry);
                     }
 
-                    // set panel max height to 500px
-                    panel.MaximumSize = new Size(0, 500);
+                    // set panel max size to 180 by computer screen height
+                    panel.MaximumSize = new Size(180, Screen.PrimaryScreen.Bounds.Height - 100);
 
-                    // set panel height to fit all text boxes
+                    // set panel location to right of button1
+                    panel.Location = new Point(button1.Location.X + button1.Width + 20, button1.Location.Y);
+
+                    // set panel height to fit all controls
                     panel.Height = panel.PreferredSize.Height;
 
-                    // set panel width and padding
-                    panel.Width = 180;
-                    panel.Padding = new Padding(0, 0, 20, 0);
+                    panel.Width = panel.PreferredSize.Width + SystemInformation.VerticalScrollBarWidth;
 
-                    if (panel.Controls.Cast<Control>().Max(c => c.Width) + 10 <= panel.Width)
+                    if (panel.Controls.Cast<Control>().Max(c => c.Width) + 10 < panel.Width)
                     {
                         panel.HorizontalScroll.Maximum = 0;
                     }
 
-                    // allow panel to scroll
+                    // panel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom;
                     panel.AutoScroll = true;
-                    // set panel location to right of button1
-                    panel.Location = new Point(button1.Location.X + button1.Width + 20, button1.Location.Y);
+
                     // add visual boundary to panel
                     panel.BorderStyle = BorderStyle.FixedSingle;
 
@@ -159,13 +162,15 @@ public partial class Form1 : Form
     }
 
     // button2 click handler
+    public RichTextBox finalStoryTextBox = new RichTextBox();
     private void button2_Click(object? sender, EventArgs e)
     {
         // get first text box input from panel
         var adLibFieldEntry = (adLibField)panel.Controls[0];
 
-        // create stringbuilder
-        sb_final = new StringBuilder();
+        // clear stringbuilder
+        sb_final.Clear();
+
         sb_final.Append(category);
         sb_final.Append("\r\n");
         sb_final.Append(title);
@@ -217,36 +222,64 @@ public partial class Form1 : Form
             sb_final.Append(finalStory);
 
             // create text box to right of panel with final story
-            TextBox textBox = new TextBox();
-            textBox.Multiline = true;
-            textBox.ScrollBars = ScrollBars.Vertical;
-            textBox.Width = 500;
-            textBox.Height = 500;
-            textBox.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
-            textBox.Text = sb_final.ToString();
+            finalStoryTextBox.WordWrap = true;
+            finalStoryTextBox.Multiline = true;
+            finalStoryTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
 
-            // textbox is readonly and unselectable
-            textBox.ReadOnly = true;
-            textBox.TabStop = false;
+            // set text box location to right of panel
+            finalStoryTextBox.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
+
+            finalStoryTextBox.Text = sb_final.ToString();
 
             // style textbox
-            textBox.Font = new Font("Arial", 12);
-            textBox.BorderStyle = BorderStyle.FixedSingle;
+            finalStoryTextBox.Font = new Font("Arial", 50);
+
+            // bold first two lines of text box
+            if (category == null || title == null)
+            {
+                MessageBox.Show("There must be a category and title on the first two lines of the file. Please submit a valid file.");
+                // throw exception
+                throw new Exception("There must be a category and title on the first two lines of the file. Please submit a valid file.");
+            }
+            
+            finalStoryTextBox.Select(0, category.Length);
+            finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Bold);
+            finalStoryTextBox.Select(category.Length + 1, title.Length);
+            finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Bold);
+            
+            // center all text in text box
+            finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Center;
+
+            // set text box max size to 180 by computer screen height
+            finalStoryTextBox.MaximumSize = new Size(0, Screen.PrimaryScreen.Bounds.Height - 100);
+
+            // set text box width to half of screen
+            finalStoryTextBox.Width = Screen.PrimaryScreen.Bounds.Width - finalStoryTextBox.Location.X - 20;
+            SizeF size = finalStoryTextBox.CreateGraphics().MeasureString(finalStoryTextBox.Text, finalStoryTextBox.Font, finalStoryTextBox.Width, new StringFormat(0));
+            finalStoryTextBox.Height = (int)size.Height;
+
+            // textbox is readonly and unselectable
+            finalStoryTextBox.ReadOnly = true;
+            finalStoryTextBox.TabStop = false;
+            finalStoryTextBox.BorderStyle = BorderStyle.FixedSingle;
 
             // textbox background color to same as form
-            textBox.BackColor = this.BackColor;
+            finalStoryTextBox.BackColor = this.BackColor;
 
             // add save button to right of text box
             Button button3 = new Button();
             button3.Text = "Save";
-            button3.Location = new Point(textBox.Location.X + textBox.Width + 20, textBox.Location.Y);
+            // set button location under button2
+            button3.Location = new Point(20, button2.Location.Y + button2.Height + 20);
+            // set button width to same as button2
+            button3.Width = button2.Width;
+            // set button height to same as button2
+            button3.Height = button2.Height;
             button3.Click += new EventHandler(button3_Click);
 
             // add text box and save button to form
-            this.Controls.Add(textBox);
+            this.Controls.Add(finalStoryTextBox);
             this.Controls.Add(button3);
-
-            
         }
         catch (Exception)
         {
@@ -279,8 +312,6 @@ public partial class Form1 : Form
 
         // close save file dialog
         saveFileDialog1.Dispose();
-
-        // form2.Close();
     }
 }
 
