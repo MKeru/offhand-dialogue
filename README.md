@@ -31,4 +31,4 @@ The form will then list all regex matches in order with a text box next to each 
 After filling out all text boxes and clicking the submit button, the app (for now) displays a message box with the completed story.  
 
 #### Example of completed story
-![image](https://user-images.githubusercontent.com/70172268/191092364-2075bf51-f957-497e-95ee-ce8d105d44f0.png)
+![image](https://user-images.githubusercontent.com/70172268/191851056-853b42da-24d7-4f1b-827d-e98a0b5e4540.png)
