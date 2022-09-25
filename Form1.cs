@@ -232,7 +232,18 @@ public partial class Form1 : Form
             finalStoryTextBox.Text = sb_final.ToString();
 
             // style textbox
-            finalStoryTextBox.Font = new Font("Arial", 50);
+            finalStoryTextBox.Font = new Font("Times New Roman", 50);
+
+            // create matchcollection
+            MatchCollection matches = Regex.Matches(finalStoryTextBox.Text, @"\*.*?\*");
+            foreach (Match match in matches)
+            {
+                finalStoryTextBox.SelectionStart = match.Index - 1;
+                finalStoryTextBox.SelectionLength = match.Length - 1;
+                finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Italic);
+            }
+
+            // TODO: trim asterisks surrounding regex matches
 
             // bold first two lines of text box
             if (category == null || title == null)
@@ -243,11 +254,17 @@ public partial class Form1 : Form
             }
             
             finalStoryTextBox.Select(0, category.Length);
-            finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Bold);
+            // bold first line, change font size to 20, and align to left
+            finalStoryTextBox.SelectionFont = new Font("Times New Roman", 20, FontStyle.Bold);
+            finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Left;
+
+            // bold second
             finalStoryTextBox.Select(category.Length + 1, title.Length);
             finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Bold);
+
             
-            // center all text in text box
+            // select all text
+            finalStoryTextBox.SelectAll();
             finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Center;
 
             // set text box max size to 180 by computer screen height
