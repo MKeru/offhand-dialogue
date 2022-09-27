@@ -165,6 +165,9 @@ public class Story
                 // add escape characters to entry in front of any special characters
                 entry = Regex.Escape(entry);
 
+                // add underline tags to entry
+                entry = "<u>" + entry + "</u>";
+
                 // replace regex match with text box input
                 finalStory = regex.Replace(finalStory, entry, 1);
             }
