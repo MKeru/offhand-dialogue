@@ -1,11 +1,13 @@
 using System.Text;
 namespace offhand_dialogue;
 using System.Text.RegularExpressions;
+using Markdig;
+using HtmlAgilityPack;
 
 
 public partial class Form1 : Form
 {
-    public Button button1, button2;
+    public Button button1, button2, button3;
 
     // collection of ad libs with specifications (italics, capitalization, etc.)
 
@@ -35,6 +37,24 @@ public partial class Form1 : Form
         button2.Height = TextRenderer.MeasureText(button2.Text, button2.Font).Height + 20;
         button2.Location = new Point(20, 20 + button1.Height + 20);
         button2.Click += new EventHandler(this.button2_Click);
+        // start button2 disabled and invisible
+        button2.Enabled = false;
+        button2.Visible = false;
+        this.Controls.Add(button2);
+
+        button3 = new Button();
+        button3.Text = "Save";
+        // set button location under button2
+        button3.Location = new Point(20, button2.Location.Y + button2.Height + 20);
+        // set button width to same as button2
+        button3.Width = button2.Width;
+        // set button height to same as button2
+        button3.Height = button2.Height;
+        button3.Click += new EventHandler(button3_Click);
+        // start button3 disabled and invisible
+        button3.Enabled = false;
+        button3.Visible = false;
+        this.Controls.Add(button3);
 
         InitializeComponent();
     }
@@ -42,6 +62,7 @@ public partial class Form1 : Form
     AdLib[]? adLibsArray;
     public Story? story;
     public Panel? panel;
+    WebBrowser webBrowser;
     private void button1_Click(object? sender, EventArgs e)
     {
         // Story object which opens a file dialog and reads the file
@@ -50,6 +71,12 @@ public partial class Form1 : Form
         if (!story.IsSuccessful())
         {
             return;
+        }
+
+        // delete web browser if it exists
+        if (webBrowser != null)
+        {
+            this.Controls.Remove(webBrowser);
         }
 
         adLibsArray = story.GetAdlibsArray();
@@ -96,95 +123,82 @@ public partial class Form1 : Form
         // add panel to form
         this.Controls.Add(panel);
 
-        // if all was successful, add button2 to form
-        this.Controls.Add(button2);
+        // make button2 visible and enabled
+        button2.Enabled = true;
+        button2.Visible = true;
     }
 
     // button2 click handler
-    public RichTextBox finalStoryTextBox = new RichTextBox();
-    string? finalStory;
+    string? finalStory, title, category;
     private void button2_Click(object? sender, EventArgs e)
     {
+        // clear all fields
+        finalStory = null;
+
         // check if story is null
         if (story == null || panel == null)
         {
             return;
         }
+
+        // get title and category
+        title = story.GetTitle();
+        category = story.GetCategory();
+        // finalStory contains only the story
         finalStory = story.GetFinalStory(panel);
 
-        try
+        // start building html
+        // FORMAT RULES:
+        // all text is Times New Roman
+        // Title is font 60
+        // Category is font 20
+        // Story is font 50
+        // Title, line break, Category, line break, Story
+        // keep all newlines in story
+        StringBuilder html = new StringBuilder();
+        html.Append("<html><head><style>");
+        html.Append("body {font-family: \"Times New Roman\", Times, serif;}");
+        html.Append("h1 {font-size: 20px;}");
+        html.Append("h2 {font-size: 60px;}");
+        html.Append("p {font-size: 50px;}");
+        html.Append("</style></head><body>");
+        html.Append("<h1>" + category + "</h1>");
+        html.Append("<h2>" + title + "</h2>");
+
+        // change newlines to line breaks
+        finalStory = finalStory.Replace("\r\n", "<br>");
+        // apply markdown to finalStory
+        var finalStoryHtml = Markdig.Markdown.ToHtml(finalStory);
+
+        html.Append("<p>" + finalStoryHtml.ToString() + "</p>");
+        html.Append("</body></html>");
+
+        // center html
+        html.Insert(0, "<center>");
+        html.Append("</center>");
+
+        // convert StringBuilder to string
+        string htmlString = html.ToString();
+
+        // make web browser if it doesn't exist
+        if (webBrowser == null)
         {
-            // create text box to right of panel with final story
-            finalStoryTextBox.WordWrap = true;
-            finalStoryTextBox.Multiline = true;
-            finalStoryTextBox.ScrollBars = RichTextBoxScrollBars.Vertical;
-
-            // set text box location to right of panel
-            finalStoryTextBox.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
-
-            finalStoryTextBox.Text = finalStory;
-
-            // style textbox
-            finalStoryTextBox.Font = new Font("Times New Roman", 50);
-
-            /*
-            // create matchcollection
-            MatchCollection matches = Regex.Matches(finalStoryTextBox.Text, @"\*.*?\*");
-            foreach (Match match in matches)
-            {
-                finalStoryTextBox.SelectionStart = match.Index - 1;
-                finalStoryTextBox.SelectionLength = match.Length - 1;
-                finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Italic);
-            }
-            */
-
-            finalStoryTextBox.Select(0, story.GetCategory().Length);
-            // bold first line, change font size to 20, and align to left
-            finalStoryTextBox.SelectionFont = new Font("Times New Roman", 20, FontStyle.Bold);
-            finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Left;
-
-            // bold second
-            finalStoryTextBox.Select(story.GetCategory().Length + 1, story.GetTitle().Length);
-            finalStoryTextBox.SelectionFont = new Font("Times New Roman", 60, FontStyle.Bold);
-
-            // select all text
-            finalStoryTextBox.SelectAll();
-            finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Center;
-
-            // set text box max size to 180 by computer screen height
-            finalStoryTextBox.MaximumSize = new Size(0, Screen.PrimaryScreen.Bounds.Height - 100);
-
-            // set text box width to half of screen
-            finalStoryTextBox.Width = Screen.PrimaryScreen.Bounds.Width - finalStoryTextBox.Location.X - 20;
-            SizeF size = finalStoryTextBox.CreateGraphics().MeasureString(finalStoryTextBox.Text, finalStoryTextBox.Font, finalStoryTextBox.Width, new StringFormat(0));
-            finalStoryTextBox.Height = (int)size.Height;
-
-            // textbox is readonly and unselectable
-            finalStoryTextBox.ReadOnly = true;
-            finalStoryTextBox.TabStop = false;
-            finalStoryTextBox.BorderStyle = BorderStyle.FixedSingle;
-
-            // textbox background color to same as form
-            finalStoryTextBox.BackColor = this.BackColor;
-
-            // add save button to right of text box
-            Button button3 = new Button();
-            button3.Text = "Save";
-            // set button location under button2
-            button3.Location = new Point(20, button2.Location.Y + button2.Height + 20);
-            // set button width to same as button2
-            button3.Width = button2.Width;
-            // set button height to same as button2
-            button3.Height = button2.Height;
-            button3.Click += new EventHandler(button3_Click);
-
-            // add text box and save button to form
-            this.Controls.Add(finalStoryTextBox);
-            this.Controls.Add(button3);
+            webBrowser = new WebBrowser();
+            webBrowser.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
+            webBrowser.Width = this.Width - webBrowser.Location.X - 60;
+            webBrowser.Height = this.Height - webBrowser.Location.Y - 60;
+            webBrowser.DocumentText = htmlString;
+            this.Controls.Add(webBrowser);
         }
-        catch (Exception)
+        else
         {
+            // set web browser document text to html
+            webBrowser.DocumentText = htmlString;
         }
+
+        // enable button3
+        button3.Enabled = true;
+        button3.Visible = true;
     }
 
     // button3 click handler to save finalStory to text file
@@ -192,6 +206,7 @@ public partial class Form1 : Form
     {
         // create save file dialog
         SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
         // set default file name
         // check if story is null
         if (story != null)
@@ -203,6 +218,7 @@ public partial class Form1 : Form
             MessageBox.Show("Story is null.");
             return;
         }
+
         // set default file extension
         saveFileDialog1.DefaultExt = "txt";
         // set default file type

@@ -17,6 +17,13 @@ public class Story
     private bool successfulRead = false;
     public Story()
     {
+        // clear all fields
+        this.adLibsArray = null;
+        this.category = null;
+        this.title = null;
+        this.rawStory = null;
+        this.successfulRead = false;
+
         OpenFileDialog openFileDialog = new OpenFileDialog();
         openFileDialog.Filter = "Text Files (*.txt)|*.txt";
         openFileDialog.RestoreDirectory = true;
@@ -117,9 +124,9 @@ public class Story
         // check if rawStory is null
         if (rawStory == null)
         {
-            MessageBox.Show("There must be a story in the file. Please submit a valid file.");
+            MessageBox.Show("Error in GetFinalStory: Raw Story is null.");
             // throw exception
-            throw new Exception("There must be a story in the file. Please submit a valid file.");
+            throw new Exception("Error in GetFinalStory: Raw Story is null.");
         }
         
         string finalStory = rawStory; // finalStory is the raw story with the ad libs filled in
@@ -130,10 +137,10 @@ public class Story
         StringBuilder sb = new StringBuilder();
 
         // add category then title to stringbuilder
-        sb.Append(category);
-        sb.Append("\r\n");
-        sb.Append(title);
-        sb.Append("\r\n");
+        // sb.Append(category);
+        // sb.Append("\r\n");
+        // sb.Append(title);
+        // sb.Append("\r\n");
 
         try
         {
@@ -149,14 +156,14 @@ public class Story
                 }
             }
 
-            // remove all newlines from story
-            finalStory = rawStory.Replace("\r\n", " ");
-
             // replace regex matches in story with text box inputs from panel in order
             for (int i = 0; i < panel.Controls.Count; i++)
             {
                 // get text box input from panel
                 entry = ((adLibField)panel.Controls[i]).textBox.Text;
+
+                // add escape characters to entry in front of any special characters
+                entry = Regex.Escape(entry);
 
                 // replace regex match with text box input
                 finalStory = regex.Replace(finalStory, entry, 1);
@@ -165,7 +172,7 @@ public class Story
             // delete double spaces from finalStory
             finalStory = finalStory.Replace("  ", " ");
 
-            // add rawStory to stringbuilder
+            // add finalStory to stringbuilder
             sb.Append(finalStory);
 
             // return final story

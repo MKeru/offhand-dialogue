@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="htmlagilitypack" Version="1.11.46" />
     <PackageReference Include="Markdig" Version="0.30.3" />
   </ItemGroup>
 
