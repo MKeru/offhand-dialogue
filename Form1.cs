@@ -62,7 +62,7 @@ public partial class Form1 : Form
     AdLib[]? adLibsArray;
     public Story? story;
     public Panel? panel;
-    WebBrowser webBrowser;
+    WebBrowser? webBrowser;
     private void button1_Click(object? sender, EventArgs e)
     {
         // Story object which opens a file dialog and reads the file
