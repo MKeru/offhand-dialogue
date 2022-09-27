@@ -6,10 +6,9 @@ using System.Text.RegularExpressions;
 public partial class Form1 : Form
 {
     public Button button1, button2;
-    public string? rawStory, title, category;
-    public Panel panel = new Panel();
-    // stringbuilder for the final story
-    public StringBuilder sb_final = new StringBuilder();
+
+    // collection of ad libs with specifications (italics, capitalization, etc.)
+
     public Form1()
     {
         this.AutoSize = false;
@@ -24,9 +23,8 @@ public partial class Form1 : Form
         // set button height to fit text plus 10 pixels on each side
         button1.Height = TextRenderer.MeasureText(button1.Text, button1.Font).Height + 20;
         button1.Location = new Point(20, 20);
-
-        this.Controls.Add(button1);
         button1.Click += new EventHandler(this.button1_Click);
+        this.Controls.Add(button1);
 
         // button2
         button2 = new Button();
@@ -41,186 +39,81 @@ public partial class Form1 : Form
         InitializeComponent();
     }
 
+    AdLib[]? adLibsArray;
+    public Story? story;
+    public Panel? panel;
     private void button1_Click(object? sender, EventArgs e)
     {
-        // open file browser window
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Text Files (*.txt)|*.txt";
-        openFileDialog.RestoreDirectory = true;
-        if (openFileDialog.ShowDialog() == DialogResult.OK)
+        // Story object which opens a file dialog and reads the file
+        story = new Story();
+        // if the story was unable to be read, do not continue
+        if (!story.IsSuccessful())
         {
-            string file = openFileDialog.FileName;
-            try
-            {
-                using (StreamReader reader = new StreamReader(file))
-                {
-                    // assign first line of text from file to variable
-                    category = reader.ReadLine();
-                    if (category == null || category.Length >= 50)
-                    {
-                        MessageBox.Show("There must be a category on the first line in the file. Please submit a valid file.");
-                        // throw exception
-                        throw new Exception("There must be a category on the first line in the file. Please submit a valid file.");
-                    }
-
-                    // assign second line of text from file to variable
-                    title = reader.ReadLine();
-                    if (title == null || title.Length >= 50)
-                    {
-                        MessageBox.Show("There must be a title on the second line in the file. Please submit a valid file.");
-                        // throw exception
-                        throw new Exception("There must be a title on the second line in the file. Please submit a valid file.");
-                    }
-
-                    // read rest of file to string
-                    rawStory = reader.ReadToEnd();
-
-                    // check if rawStory is null
-                    if (rawStory == null)
-                    {
-                        MessageBox.Show("There must be a story in the file. Please submit a valid file.");
-                        // throw exception
-                        throw new Exception("There must be a story in the file. Please submit a valid file.");
-                    }
-
-                    // find all regex matches in text
-                    Regex regex = new Regex("\\[.+?\\]");
-                    MatchCollection matches = regex.Matches(rawStory);
-
-                    // create array of size matches
-                    string[] adLibs = new string[matches.Count];
-                    for (int i = 0; i < matches.Count; i++)
-                    {
-                        adLibs[i] = matches[i].Value.TrimStart('[').TrimEnd(']');
-                    }
-
-                    if (adLibs.Length == 0)
-                    {
-                        MessageBox.Show("There must be at least one ad lib in the file. Please submit a valid file.");
-                        // throw exception
-                        throw new Exception("There must be at least one ad lib in the file. Please submit a valid file.");
-                    }
-
-                    // from here on the file is valid
-                    // reset panel
-                    panel.Controls.Clear();
-                    panel.Dispose();
-
-                    // makes ad lib labels capitalized
-                    string prettyLabel;
-                    for (int i = 0; i < adLibs.Length; i++)
-                    {
-                        prettyLabel = adLibs[i];
-                        // capitalize first letter and add colon to end
-                        adLibs[i] = prettyLabel.Substring(0, 1).ToUpper() + prettyLabel.Substring(1) + ": ";
-                    }
-
-                    // create panel with text boxes
-                    panel = new TableLayoutPanel();
-
-                    var adLibFieldEntry = new adLibField(adLibs[0]);
-                    panel.Controls.Add(adLibFieldEntry);
-
-                    for (int i = 1; i < adLibs.Length; i++)
-                    {
-                        adLibFieldEntry = new adLibField(adLibs[i]);
-                        panel.Controls.Add(adLibFieldEntry);
-                    }
-
-                    // set panel max size to 180 by computer screen height
-                    panel.MaximumSize = new Size(180, Screen.PrimaryScreen.Bounds.Height - 100);
-
-                    // set panel location to right of button1
-                    panel.Location = new Point(button1.Location.X + button1.Width + 20, button1.Location.Y);
-
-                    // set panel height to fit all controls
-                    panel.Height = panel.PreferredSize.Height;
-
-                    panel.Width = panel.PreferredSize.Width + SystemInformation.VerticalScrollBarWidth;
-
-                    if (panel.Controls.Cast<Control>().Max(c => c.Width) + 10 < panel.Width)
-                    {
-                        panel.HorizontalScroll.Maximum = 0;
-                    }
-
-                    // panel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom;
-                    panel.AutoScroll = true;
-
-                    // add visual boundary to panel
-                    panel.BorderStyle = BorderStyle.FixedSingle;
-
-                    this.Controls.Add(panel);
-
-                    // if all was successful, add button2 to form
-                    this.Controls.Add(button2);
-                }
-            }
-            catch (Exception)
-            {
-            }
+            return;
         }
+
+        adLibsArray = story.GetAdlibsArray();
+
+        // delete panel if it exists
+        if (panel != null)
+        {
+            this.Controls.Remove(panel);
+        }
+
+        panel = AddFields.CreateFieldsPanel(adLibsArray);
+
+        // set panel max size to 180 by computer screen height
+        panel.MaximumSize = new Size(180, Screen.PrimaryScreen.Bounds.Height - 100);
+
+        // set panel location to right of button1
+        panel.Location = new Point(button1.Location.X + button1.Width + 20, button1.Location.Y);
+
+        // set panel height and width to fit all controls
+        panel.Height = panel.PreferredSize.Height;
+        panel.Width = panel.PreferredSize.Width + SystemInformation.VerticalScrollBarWidth;
+
+        if (panel.Controls.Cast<Control>().Max(c => c.Width) + 10 < panel.Width)
+        {
+            panel.HorizontalScroll.Enabled = false;
+            panel.HorizontalScroll.Maximum = 0;
+        }
+
+        // FIXME: if vertical scroll isn't really needed, remove it
+        /*
+        if (panel.Controls.Cast<Control>().Max(c => c.Height) + 10 < panel.Height)
+        {
+            panel.VerticalScroll.Enabled = false;
+            panel.VerticalScroll.Maximum = 0;
+        }
+        */
+
+        // autoscroll panel
+        panel.AutoScroll = true;
+
+        // add visual boundary to panel
+        panel.BorderStyle = BorderStyle.FixedSingle;
+
+        // add panel to form
+        this.Controls.Add(panel);
+
+        // if all was successful, add button2 to form
+        this.Controls.Add(button2);
     }
 
     // button2 click handler
     public RichTextBox finalStoryTextBox = new RichTextBox();
+    string? finalStory;
     private void button2_Click(object? sender, EventArgs e)
     {
-        // get first text box input from panel
-        var adLibFieldEntry = (adLibField)panel.Controls[0];
-
-        // clear stringbuilder
-        sb_final.Clear();
-
-        sb_final.Append(category);
-        sb_final.Append("\r\n");
-        sb_final.Append(title);
-        sb_final.Append("\r\n");
-
-        // regex
-        Regex regex = new Regex("\\[.+?\\]");
+        // check if story is null
+        if (story == null || panel == null)
+        {
+            return;
+        }
+        finalStory = story.GetFinalStory(panel);
 
         try
         {
-            // throw exception if any text box in the panel is empty
-            for (int i = 0; i < panel.Controls.Count; i++)
-            {
-                adLibFieldEntry = (adLibField)panel.Controls[i];
-                if (adLibFieldEntry.textBox.Text == "")
-                {
-                    // messagebox with error
-                    MessageBox.Show("Please fill out all fields.");
-                    throw new Exception("Please fill out all ad libs!");
-                }
-            }
-
-            // check if rawStory is null
-            if (rawStory == null)
-            {
-                MessageBox.Show("There must be a story in the file. Please submit a valid file.");
-                // throw exception
-                throw new Exception("There must be a story in the file. Please submit a valid file.");
-            }
-
-            string finalStory = rawStory;
-
-            // remove all newlines from finalStory
-            finalStory = finalStory.Replace("\r\n", " ");
-
-            // replace regex matches in rawStory with text box inputs from panel in order
-            for (int i = 0; i < panel.Controls.Count; i++)
-            {
-                // get text box input from panel
-                adLibFieldEntry = (adLibField)panel.Controls[i];
-                // replace regex match with text box input
-                finalStory = regex.Replace(finalStory, adLibFieldEntry.textBox.Text, 1);
-            }
-
-            // delete double spaces from finalStory
-            finalStory = finalStory.Replace("  ", " ");
-
-            // add rawStory to stringbuilder
-            sb_final.Append(finalStory);
-
             // create text box to right of panel with final story
             finalStoryTextBox.WordWrap = true;
             finalStoryTextBox.Multiline = true;
@@ -229,11 +122,12 @@ public partial class Form1 : Form
             // set text box location to right of panel
             finalStoryTextBox.Location = new Point(panel.Location.X + panel.Width + 20, panel.Location.Y);
 
-            finalStoryTextBox.Text = sb_final.ToString();
+            finalStoryTextBox.Text = finalStory;
 
             // style textbox
             finalStoryTextBox.Font = new Font("Times New Roman", 50);
 
+            /*
             // create matchcollection
             MatchCollection matches = Regex.Matches(finalStoryTextBox.Text, @"\*.*?\*");
             foreach (Match match in matches)
@@ -242,27 +136,17 @@ public partial class Form1 : Form
                 finalStoryTextBox.SelectionLength = match.Length - 1;
                 finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Italic);
             }
+            */
 
-            // TODO: trim asterisks surrounding regex matches
-
-            // bold first two lines of text box
-            if (category == null || title == null)
-            {
-                MessageBox.Show("There must be a category and title on the first two lines of the file. Please submit a valid file.");
-                // throw exception
-                throw new Exception("There must be a category and title on the first two lines of the file. Please submit a valid file.");
-            }
-            
-            finalStoryTextBox.Select(0, category.Length);
+            finalStoryTextBox.Select(0, story.GetCategory().Length);
             // bold first line, change font size to 20, and align to left
             finalStoryTextBox.SelectionFont = new Font("Times New Roman", 20, FontStyle.Bold);
             finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Left;
 
             // bold second
-            finalStoryTextBox.Select(category.Length + 1, title.Length);
-            finalStoryTextBox.SelectionFont = new Font(finalStoryTextBox.Font, FontStyle.Bold);
+            finalStoryTextBox.Select(story.GetCategory().Length + 1, story.GetTitle().Length);
+            finalStoryTextBox.SelectionFont = new Font("Times New Roman", 60, FontStyle.Bold);
 
-            
             // select all text
             finalStoryTextBox.SelectAll();
             finalStoryTextBox.SelectionAlignment = HorizontalAlignment.Center;
@@ -309,7 +193,16 @@ public partial class Form1 : Form
         // create save file dialog
         SaveFileDialog saveFileDialog1 = new SaveFileDialog();
         // set default file name
-        saveFileDialog1.FileName = title + ".txt";
+        // check if story is null
+        if (story != null)
+        {
+            saveFileDialog1.FileName = story.GetTitle() + ".txt";
+        }
+        else 
+        {
+            MessageBox.Show("Story is null.");
+            return;
+        }
         // set default file extension
         saveFileDialog1.DefaultExt = "txt";
         // set default file type
@@ -323,32 +216,11 @@ public partial class Form1 : Form
             using (StreamWriter writer = new StreamWriter(saveFileDialog1.FileName))
             {
                 // write finalStory to file
-                writer.Write(sb_final.ToString());
+                writer.Write(finalStory);
             }
         }
 
         // close save file dialog
         saveFileDialog1.Dispose();
-    }
-}
-
-class adLibField : TableLayoutPanel
-{
-    public Label adLibLabel;
-    public TextBox textBox;
-    public adLibField(string label)
-        : base()
-    {
-        AutoSize = true;
-        adLibLabel = new Label();
-        adLibLabel.Text = label;
-        adLibLabel.AutoSize = true;
-
-        Controls.Add(adLibLabel);
-        // create new text box
-        textBox = new TextBox();
-        // set text box width to 100px
-        textBox.Width = 140;
-        Controls.Add(textBox);
     }
 }
