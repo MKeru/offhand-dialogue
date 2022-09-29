@@ -18,5 +18,9 @@ public class AdLibField
 
         // allow textblock to word wrap
         textBlock.TextWrapping = TextWrapping.Wrap;
+        // padding
+        textBlock.Padding = new Thickness(5, 4, 0, 1);
+        textBlock.FontFamily = new System.Windows.Media.FontFamily("Times New Roman");
+        textBlock.FontSize = 16;
     }
 }

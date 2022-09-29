@@ -36,6 +36,8 @@ namespace offhand_dialogue_wpf
                             // throw exception
                             throw new Exception("There must be a category on the first line in the file. Please submit a valid file.");
                         }
+                        // delete leading or trailing whitespace
+                        category = category.Trim();
 
                         // assign second line of text from file to variable
                         title = reader.ReadLine();
@@ -45,6 +47,8 @@ namespace offhand_dialogue_wpf
                             // throw exception
                             throw new Exception("There must be a title on the second line in the file. Please submit a valid file.");
                         }
+                        // delete leading or trailing whitespace
+                        title = title.Trim();
 
                         // read rest of file to string
                         rawStory = reader.ReadToEnd();
