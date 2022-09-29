@@ -5,13 +5,11 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>offhand_dialogue</RootNamespace>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="htmlagilitypack" Version="1.11.46" />
-    <PackageReference Include="Markdig" Version="0.30.3" />
+    <PackageReference Include="Markdig" Version="0.30.4" />
   </ItemGroup>
 
 </Project>
