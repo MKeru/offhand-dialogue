@@ -1,31 +1,19 @@
-using System.Text;
-namespace offhand_dialogue;
-using System.Linq;
+﻿using System.Windows.Controls;
+
 public class AddFields
 {
-    public static Panel CreateFieldsPanel(AdLib[] adLibsArray)
+    public static void AddFieldsToPanel(StackPanel panel, AdLib[] adLibs)
     {
-        // create panel
-        Panel panel = new TableLayoutPanel();
-
         // special character arrays to be removed from ad libs for label usage
         char[] startChars = new char[] { '[', '*' };
         char[] endChars = new char[] { ']', '*' };
 
-        adLibField entry;
-        for (int i = 0; i < adLibsArray.Count(); i++)
+        AdLibField entry;
+        for (int i = 0; i < adLibs.Length; i++)
         {
-            // trim special characters from ad lib in adLibsArray
-            adLibsArray[i].adLib = adLibsArray[i].adLib.TrimStart(startChars).TrimEnd(endChars);
-
-            // capitalize first letter of key at element i in adLibsArray
-            adLibsArray[i].adLib = char.ToUpper(adLibsArray[i].adLib[0]) + adLibsArray[i].adLib.Substring(1);
-
-            entry = new adLibField(adLibsArray[i].adLib);
-
-            panel.Controls.Add(entry);
+            entry = new AdLibField(adLibs[i].adLib.TrimStart(startChars).TrimEnd(endChars));
+            panel.Children.Add(entry.label);
+            panel.Children.Add(entry.textBox);
         }
-
-        return panel;
     }
 }

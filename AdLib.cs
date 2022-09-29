@@ -1,7 +1,7 @@
-public class AdLib
+﻿public class AdLib
 {
     public string adLib;
-    public int emphasis;
+    public int emphasis; // currently unused
     public AdLib(string adLib, int emphasis)
     {
         this.adLib = adLib;
