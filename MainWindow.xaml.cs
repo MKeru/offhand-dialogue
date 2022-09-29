@@ -51,6 +51,9 @@ namespace offhand_dialogue_wpf
             // add ad libs to inputPanel
             AddFields.AddFieldsToPanel(inputPanel, adLibs);
 
+            // make inputScrollViewer visible
+            // inputScrollViewer.Visibility = Visibility.Visible;
+
             // enable submit button
             submitInputButton.IsEnabled = true;
         }

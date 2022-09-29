@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 public class AddFields
@@ -15,17 +16,16 @@ public class AddFields
             entry = new AdLibField(adLibs[i].adLib.TrimStart(startChars).TrimEnd(endChars));
 
             // check if label content is empty
-            if (entry.label.Content.ToString() == "")
+            if (entry.textBlock.Text == "")
             {
                 // throw exception
-                throw new Exception("Error in AddFieldsToPanel: Label content is empty.");
+                throw new Exception("Error in AddFieldsToPanel: Text block content is empty.");
             }
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            entry.label.Content = char.ToUpper(entry.label.Content.ToString()[0]) + entry.label.Content.ToString().Substring(1);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            // make first character of entry textBlock uppercase
+            entry.textBlock.Text = entry.textBlock.Text.Substring(0, 1).ToUpper() + entry.textBlock.Text.Substring(1);
 
-            panel.Children.Add(entry.label);
+            panel.Children.Add(entry.textBlock);
             panel.Children.Add(entry.textBox);
         }
     }
