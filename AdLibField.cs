@@ -9,5 +9,6 @@ public class AdLibField
         label = new Label();
         label.Content = labelText;
         textBox = new TextBox();
+        
     }
 }

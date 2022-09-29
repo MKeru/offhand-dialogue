@@ -15,11 +15,6 @@ namespace offhand_dialogue_wpf
         private bool successfulRead = false;
         public Story()
         {
-            // clear all fields
-            this.adLibsArray = null;
-            this.category = null;
-            this.title = null;
-            this.rawStory = null;
             this.successfulRead = false;
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -149,9 +144,23 @@ namespace offhand_dialogue_wpf
                             // exit method
                             return "";
                         }
+                        // if entry contains brackets, return null and display messagebox
+                        else if (entry.Contains("[") || entry.Contains("]"))
+                        {
+                            MessageBox.Show("Please do not use brackets in your ad libs.");
+                            // exit method
+                            return "";
+                        }
                         else
                         {
+                            // delete any brackets from entry
+                            // entry = entry.Replace("[", "");
+                            // entry = entry.Replace("]", "");
+                            
                             entry = Regex.Escape(entry);
+                            // replace "\ " with " " in entry
+                            entry = entry.Replace("\\ ", " ");
+                            
                             entry = "<u>" + entry + "</u>";
                             finalStory = regex.Replace(finalStory, entry, 1);
                         }
