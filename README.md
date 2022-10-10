@@ -10,7 +10,7 @@ Category of Story
 Title of Story  
 Full story  
 ```
-The .txt file takes markdown into consideration outside of any bracket pairs.
+The .txt file takes markdown into consideration for any words and should be used outside of bracket pairs for user-submitted words.
 
 #### Example of .txt File Input  
 ```
