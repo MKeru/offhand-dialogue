@@ -78,6 +78,7 @@ namespace offhand_dialogue_wpf
                 return;
             }
 
+            // FOR SAVING TO FILE
             // get simpleFinalStory
             simpleFinalStory = finalStory;
             // strip html tags from simpleFinalStory
@@ -90,7 +91,7 @@ namespace offhand_dialogue_wpf
             html.Append("body {font-family: \"Times New Roman\", Times, serif;}");
             html.Append("h1 {font-size: 20px;}");
             html.Append("h2 {font-size: 60px;}");
-            html.Append("p {font-size: 50px;}");
+            html.Append("p {font-size: 35px;}");
             html.Append("</style></head><body>");
             html.Append("<h1>" + category + "</h1>");
             html.Append("<h2>" + title + "</h2>");
