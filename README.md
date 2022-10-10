@@ -29,7 +29,7 @@ The form will then list all regex matches in order with a text box next to each 
 #### Example of filled out form  
 ![image](https://user-images.githubusercontent.com/70172268/194927700-3842bb35-2647-4c77-a96a-5b6518ef1f5e.png)
 
-After filling out all text boxes and clicking the submit button, the application displays the completed story.
+After filling out all text boxes and clicking the submit button, the application displays the completed story with all added words underlined and with their respective emphases.
 
 #### Example of completed story
 ![image](https://user-images.githubusercontent.com/70172268/194927798-2b251ad3-4c0a-4934-9759-aaed0fd3b894.png)
