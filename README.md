@@ -24,12 +24,12 @@ and get away before they could even [verb] me.
 The form will then list all regex matches in order with a text box next to each one.  
 
 #### Example of empty form  
-![image](https://user-images.githubusercontent.com/70172268/191091703-a9f6f9a9-ccf9-4fb9-96ad-22230c32ca98.png)
+![image](https://user-images.githubusercontent.com/70172268/194927603-6d00fd0d-64e0-4859-8710-0fd1c34c8f48.png)
 
 #### Example of filled out form  
-![image](https://user-images.githubusercontent.com/70172268/191092192-f2b6c718-53c6-45f8-b8f6-10a874c7f5b3.png)
+![image](https://user-images.githubusercontent.com/70172268/194927700-3842bb35-2647-4c77-a96a-5b6518ef1f5e.png)
 
 After filling out all text boxes and clicking the submit button, the application displays the completed story.
 
 #### Example of completed story
-![image](https://user-images.githubusercontent.com/70172268/191851056-853b42da-24d7-4f1b-827d-e98a0b5e4540.png)
+![image](https://user-images.githubusercontent.com/70172268/194927798-2b251ad3-4c0a-4934-9759-aaed0fd3b894.png)
