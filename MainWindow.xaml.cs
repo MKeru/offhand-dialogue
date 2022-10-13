@@ -34,6 +34,7 @@ namespace offhand_dialogue_wpf
 
         private void selectFileButton_Click(object sender, RoutedEventArgs e)
         {
+            
             // create new story object
             story = new Story();
             // check if story was not successfully read

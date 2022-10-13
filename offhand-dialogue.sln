@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "offhand-dialogue", "offhand-dialogue.csproj", "{0232EB23-394A-4155-8789-CD390A4934E0}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "MonkeyBusinessInstaller", "..\MonkeyBusinessInstaller\MonkeyBusinessInstaller.vdproj", "{32B6EB92-08B3-49BA-86D2-0E90FD440CCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{0232EB23-394A-4155-8789-CD390A4934E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0232EB23-394A-4155-8789-CD390A4934E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0232EB23-394A-4155-8789-CD390A4934E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B6EB92-08B3-49BA-86D2-0E90FD440CCA}.Debug|Any CPU.ActiveCfg = Debug
+		{32B6EB92-08B3-49BA-86D2-0E90FD440CCA}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

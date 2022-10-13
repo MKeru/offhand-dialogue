@@ -11,6 +11,10 @@ public class AdLibField
         textBlock.Text = labelText;
         textBox = new TextBox();
 
+        // set language for textbox to english
+        textBox.Language = System.Windows.Markup.XmlLanguage.GetLanguage("en-US");
+        // enable spell checking
+        textBox.SpellCheck.IsEnabled = true;
         // set textbox width to 200
         textBox.Width = 200;
         // align textbox to left
