@@ -10,86 +10,14 @@ namespace offhand_dialogue_wpf
 {
     public class Story
     {
-        private AdLib[]? adLibsArray;
+        private AdLib[]? adLibTypes;
         private string? category, title, rawStory;
-        private bool successfulRead = false;
-        public Story()
+        public Story(string category, string title, string rawStory, AdLib[] adLibTypes)
         {
-            this.successfulRead = false;
-
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Text Files (*.txt)|*.txt";
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string fileName = openFileDialog.FileName;
-                try
-                {
-                    using (StreamReader reader = new StreamReader(fileName))
-                    {
-                        // assign first line of text from file to variable
-                        category = reader.ReadLine();
-                        if (category == null || category.Length >= 50)
-                        {
-                            MessageBox.Show("There must be a category on the first line in the file. Please submit a valid file.");
-                            // throw exception
-                            throw new Exception("There must be a category on the first line in the file. Please submit a valid file.");
-                        }
-                        // delete leading or trailing whitespace
-                        category = category.Trim();
-
-                        // assign second line of text from file to variable
-                        title = reader.ReadLine();
-                        if (title == null || title.Length >= 50)
-                        {
-                            MessageBox.Show("There must be a title on the second line in the file. Please submit a valid file.");
-                            // throw exception
-                            throw new Exception("There must be a title on the second line in the file. Please submit a valid file.");
-                        }
-                        // delete leading or trailing whitespace
-                        title = title.Trim();
-
-                        // read rest of file to string
-                        rawStory = reader.ReadToEnd();
-
-                        // check if rawStory is null
-                        if (reader.ReadToEnd() == null)
-                        {
-                            MessageBox.Show("There must be a story in the file. Please submit a valid file.");
-                            // throw exception
-                            throw new Exception("There must be a story in the file. Please submit a valid file.");
-                        }
-
-                        // regex for any ad lib in the story
-                        Regex normRegex = new Regex("\\[.+?\\]");
-                        MatchCollection matches = normRegex.Matches(rawStory);
-
-                        adLibsArray = new AdLib[matches.Count];
-                        for (int i = 0; i < matches.Count; i++)
-                        {
-                            // add ad lib to array
-                            adLibsArray[i] = new AdLib(matches[i].Value);
-                        }
-
-                        successfulRead = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
-                }
-            }
-            else
-            {
-                successfulRead = false;
-                return;
-            }
-        }
-
-        public bool IsSuccessful()
-        {
-            return successfulRead;
+            this.category = category;
+            this.title = title;
+            this.rawStory = rawStory;
+            this.adLibTypes = adLibTypes;
         }
 
         public string GetCategory()
@@ -112,7 +40,7 @@ namespace offhand_dialogue_wpf
 
         public AdLib[] GetAdlibsArray()
         {
-            if (adLibsArray != null) return adLibsArray;
+            if (adLibTypes != null) return adLibTypes;
             else throw new Exception("AdLibs Array is null.");
         }
 

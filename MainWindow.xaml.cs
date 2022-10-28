@@ -26,23 +26,110 @@ namespace offhand_dialogue_wpf
     {
         public Story? story;
         public AdLib[]? adLibs;
-        public string? finalStory, title, category, htmlString, simpleFinalStory;
+        public string? finalStory, title, category, htmlString, simpleFinalStory, rawStory;
+        private AdLib[]? adLibTypes;
+
+        // window
+
         public MainWindow()
         {
+            
             InitializeComponent();
+
+            // make webBrowser invisible
+            webBrowser.Visibility = Visibility.Hidden;
+
+            // set background gradient
+            Rectangle rect = new Rectangle();
+            LinearGradientBrush lgb = new LinearGradientBrush();
+            // make rect fill the window
+            rect.Width = this.Width;
+            rect.Height = this.Height;
+            // set gradient
+            lgb.StartPoint = new Point(0, 0);
+            lgb.EndPoint = new Point(0, 1);
+            lgb.GradientStops.Add(new GradientStop(Colors.Purple, 0.0));
+            lgb.GradientStops.Add(new GradientStop(Colors.Black, 0.2));
+            lgb.GradientStops.Add(new GradientStop(Colors.Black, 0.8));
+            lgb.GradientStops.Add(new GradientStop(Colors.Green, 1.0));
+
+            rect.Fill = lgb;
+
+            // add rect to window
+            this.Background = lgb;
         }
 
         private void selectFileButton_Click(object sender, RoutedEventArgs e)
         {
-            
-            // create new story object
-            story = new Story();
-            // check if story was not successfully read
-            if (!story.IsSuccessful())
+            // open file dialog
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text Files (*.txt)|*.txt";
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                // do nothing
+                string fileName = openFileDialog.FileName;
+                try
+                {
+                    using (StreamReader reader = new StreamReader(fileName))
+                    {
+                        // assign first line of text from file to variable
+                        category = reader.ReadLine();
+                        if (category == null || category.Length >= 50)
+                        {
+                            MessageBox.Show("There must be a category on the first line in the file. Please submit a valid file.");
+                            // throw exception
+                            throw new Exception("There must be a category on the first line in the file. Please submit a valid file.");
+                        }
+                        // delete leading or trailing whitespace
+                        category = category.Trim();
+
+                        // assign second line of text from file to variable
+                        title = reader.ReadLine();
+                        if (title == null || title.Length >= 50)
+                        {
+                            MessageBox.Show("There must be a title on the second line in the file. Please submit a valid file.");
+                            // throw exception
+                            throw new Exception("There must be a title on the second line in the file. Please submit a valid file.");
+                        }
+                        // delete leading or trailing whitespace
+                        title = title.Trim();
+
+                        // read rest of file to string
+                        rawStory = reader.ReadToEnd();
+
+                        // check if rawStory is null
+                        if (reader.ReadToEnd() == null)
+                        {
+                            MessageBox.Show("There must be a story in the file. Please submit a valid file.");
+                            // throw exception
+                            throw new Exception("There must be a story in the file. Please submit a valid file.");
+                        }
+
+                        // regex for any ad lib in the story
+                        Regex normRegex = new Regex("\\[.+?\\]");
+                        MatchCollection matches = normRegex.Matches(rawStory);
+
+                        adLibTypes = new AdLib[matches.Count];
+                        for (int i = 0; i < matches.Count; i++)
+                        {
+                            // add ad lib to array
+                            adLibTypes[i] = new AdLib(matches[i].Value);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                }
+            }
+            else
+            {
                 return;
             }
+
+            // create new story object
+            story = new Story(category, title, rawStory, adLibTypes);
 
             // get ad libs from story
             adLibs = story.GetAdlibsArray();
@@ -51,9 +138,6 @@ namespace offhand_dialogue_wpf
             inputPanel.Children.Clear();
             // add ad libs to inputPanel
             AddFields.AddFieldsToPanel(inputPanel, adLibs);
-
-            // make inputScrollViewer visible
-            // inputScrollViewer.Visibility = Visibility.Visible;
 
             // enable submit button
             submitInputButton.IsEnabled = true;
@@ -87,6 +171,7 @@ namespace offhand_dialogue_wpf
             // strip markdown from simpleFinalStory
             simpleFinalStory = Markdig.Markdown.ToPlainText(simpleFinalStory);
 
+            // not final solution
             StringBuilder html = new StringBuilder();
             html.Append("<html><head><style>");
             html.Append("body {font-family: \"Times New Roman\", Times, serif;}");
@@ -112,8 +197,18 @@ namespace offhand_dialogue_wpf
             // convert StringBuilder to string
             htmlString = html.ToString();
 
+            // set htmlString background to black
+            htmlString = htmlString.Replace("<body>", "<body style=\"background-color:black;\">");
+            // set all text in htmlString to white
+            htmlString = htmlString.Replace("<p>", "<p style=\"color:white;\">");
+            htmlString = htmlString.Replace("<h1>", "<h1 style=\"color:white;\">");
+            htmlString = htmlString.Replace("<h2>", "<h2 style=\"color:white;\">");
+
             // set webBrowser to display htmlString
             webBrowser.NavigateToString(htmlString);
+
+            // make webBrowser visible
+            webBrowser.Visibility = Visibility.Visible;
 
             // enable save button
             saveButton.IsEnabled = true;
